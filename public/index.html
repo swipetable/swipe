@@ -111,6 +111,19 @@
         .progress-bar-fill {
             transition: width 0.5s ease;
         }
+
+        /* Loading animation */
+        .loading-shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 1000px 100%;
+            animation: shimmer 2s infinite linear;
+        }
+
+        .dark .loading-shimmer {
+            background: linear-gradient(90deg, #2d2d2d 25%, #3d3d3d 50%, #2d2d2d 75%);
+            background-size: 1000px 100%;
+            animation: shimmer 2s infinite linear;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-[#181818] min-h-screen transition-colors duration-300">
@@ -132,7 +145,7 @@
     </div>
 
     <!-- Input Form View -->
-    <div id="inputView" class="hidden min-h-screen flex items-center justify-center p-4 py-12">
+    <div id="inputView" class="min-h-screen flex items-center justify-center p-4 py-12">
         <div class="w-full max-w-2xl slide-in">
             <!-- Header -->
             <div class="text-center mb-10">
@@ -268,7 +281,7 @@
     </div>
 
     <!-- Dashboard View -->
-    <div id="dashboardView" class="hidden min-h-screen p-4 md:p-8 py-12 pt-32">
+    <div id="dashboardView" class="hidden min-h-screen p-4 md:p-8 py-20">
       	<br><br><br>
         <div class="max-w-4xl mx-auto slide-in">
             <!-- Header -->
@@ -341,13 +354,27 @@
                 </div>
             </div>
 
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden text-center py-16">
+                <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 rounded-full flex items-center justify-center">
+                    <svg class="w-10 h-10 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-2">No Classes Today</h2>
+                <p class="text-gray-500 dark:text-gray-400 mb-6">You haven't added any classes for today yet.</p>
+                <button id="addClassesBtn" class="px-6 py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl transition-all">
+                    Add Classes
+                </button>
+            </div>
+
             <!-- Timetable Cards -->
             <div id="timetableCards">
                 <!-- Cards will be inserted here by JavaScript -->
             </div>
 
             <!-- Footer Stats -->
-            <div class="mt-10 p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+            <div id="footerStats" class="hidden mt-10 p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div class="text-center">
                         <div class="text-2xl font-bold text-primary" id="totalPeriods">0</div>
@@ -400,6 +427,9 @@
         const layoutBtn = document.getElementById('layoutBtn');
         const layoutBtnText = document.getElementById('layoutBtnText');
         const layoutDropdown = document.getElementById('layoutDropdown');
+        const emptyState = document.getElementById('emptyState');
+        const footerStats = document.getElementById('footerStats');
+        const addClassesBtn = document.getElementById('addClassesBtn');
 
         // Current layout
         let currentLayout = 'cards';
@@ -626,6 +656,15 @@
             setStorageItem(LAYOUT_KEY, layout);
         }
 
+        // Check if timetable has any classes
+        function hasClasses(data) {
+            if (!data || !data.periods) return false;
+            
+            const periods = data.periods;
+            return periods.period1 || periods.period2 || periods.period3 || 
+                   periods.period4 || periods.period5 || periods.period6;
+        }
+
         // Subject icon mapping
         function getSubjectIcon(subject) {
             const lower = subject.toLowerCase();
@@ -732,6 +771,18 @@
             }
 
             dateText.textContent = formatDate(data.date);
+
+            // Show empty state if no classes
+            if (!hasClasses(data)) {
+                emptyState.classList.remove('hidden');
+                timetableCards.innerHTML = '';
+                footerStats.classList.add('hidden');
+                return;
+            }
+
+            // Hide empty state and show content
+            emptyState.classList.add('hidden');
+            footerStats.classList.remove('hidden');
 
             const schedule = [
                 { type: 'period', label: 'Period 1', value: data.periods.period1, room: data.periods.room1, num: 1, time: '8:50' },
@@ -1037,6 +1088,11 @@
             showInputView();
         });
 
+        // Handle add classes button
+        addClassesBtn.addEventListener('click', () => {
+            showInputView();
+        });
+
         // Initialize app
         function init() {
             clearOldData();
@@ -1076,4 +1132,3 @@
 
 </body>
 </html>
-
