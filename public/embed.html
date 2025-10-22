@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Swipe Timetable Embed</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#5D5CDE',
+            'primary-dark': '#4A4BC7',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .slide-in { animation: slideIn 0.3s ease-out; }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 text-gray-900 dark:text-white flex items-center justify-center">
+  <div id="dashboardView" class="w-full h-full overflow-y-auto p-6 slide-in">
+    <div class="max-w-5xl mx-auto">
+      <div id="timetableCards" class="grid md:grid-cols-2 gap-4"></div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGEKEY = 'swipetimetabledata';
+    const LAYOUTKEY = 'swipetimetablelayout';
+    const timetableCards = document.getElementById('timetableCards');
+
+    function getStorageItem(key) {
+      try { const val = localStorage.getItem(key); if (val) return val; } catch(e){}
+      try { const val = sessionStorage.getItem(key); if (val) return val; } catch(e){}
+      try {
+        const cookies = document.cookie.split(';');
+        for (let c of cookies) {
+          const [k, v] = c.trim().split('=');
+          if (k === key) return decodeURIComponent(v);
+        }
+      } catch(e){}
+      return null;
+    }
+
+    function getTimetableData() {
+      const raw = getStorageItem(STORAGEKEY);
+      if (!raw) return null;
+      try { return JSON.parse(raw); } catch { return null; }
+    }
+
+    const periodTimes = [
+      { name: 'Period 1', start: '08:50', end: '09:40' },
+      { name: 'Period 2', start: '09:40', end: '10:30' },
+      { name: 'Break', start: '10:30', end: '10:50' },
+      { name: 'Period 3', start: '10:50', end: '11:40' },
+      { name: 'Period 4', start: '11:40', end: '12:30' },
+      { name: 'Lunch', start: '12:30', end: '13:10' },
+      { name: 'Period 5', start: '13:10', end: '14:00' },
+      { name: 'Period 6', start: '14:00', end: '14:50' }
+    ];
+
+    function renderDashboard(data) {
+      const schedule = [
+        { label: 'Period 1', value: data.periods.period1, room: data.periods.room1, time: '8:50' },
+        { label: 'Period 2', value: data.periods.period2, room: data.periods.room2, time: '9:40' },
+        { label: 'Morning Break', value: 'Break', time: '10:30' },
+        { label: 'Period 3', value: data.periods.period3, room: data.periods.room3, time: '10:50' },
+        { label: 'Period 4', value: data.periods.period4, room: data.periods.room4, time: '11:40' },
+        { label: 'Lunch Break', value: 'Lunch', time: '12:30' },
+        { label: 'Period 5', value: data.periods.period5, room: data.periods.room5, time: '1:10' },
+        { label: 'Period 6', value: data.periods.period6, room: data.periods.room6, time: '2:00' },
+      ];
+      timetableCards.innerHTML = schedule.map(item =>
+        `<div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-md border border-gray-200 dark:border-gray-700">
+          <div class="flex justify-between items-center mb-2">
+            <div class="font-semibold text-primary">${item.label}</div>
+            <div class="text-sm text-gray-500">${item.time}</div>
+          </div>
+          <div class="text-xl font-bold">${item.value || 'Free Period'}</div>
+          ${item.room ? `<div class="text-sm text-gray-500 mt-1">${item.room}</div>` : ''}
+        </div>`
+      ).join('');
+    }
+
+    const data = getTimetableData();
+    if (data && data.periods) {
+      renderDashboard(data);
+    } else {
+      timetableCards.innerHTML = '<p class="text-center text-gray-500 text-lg">No timetable data found</p>';
+    }
+  </script>
+</body>
+</html>
