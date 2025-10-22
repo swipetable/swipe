@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swipe Timetable</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="assets/img/icon.jpeg">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        'primary-dark': '#4A4BC7',
+                    },
+                    backdropBlur: {
+                        xs: '2px',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+
+        .slide-in {
+            animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(93, 92, 222, 0.1), 0 10px 10px -5px rgba(93, 92, 222, 0.04);
+        }
+
+        .input-focus {
+            transition: all 0.2s ease;
+        }
+
+        .input-focus:focus {
+            transform: translateY(-1px);
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .dark .glass-effect {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .period-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .card-hover:hover .period-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #5D5CDE;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4A4BC7;
+        }
+
+        .progress-bar-fill {
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-[#181818] min-h-screen transition-colors duration-300">
+
+    <!-- Progress Bar (Sticky) -->
+    <div id="progressBar" class="hidden fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-800 shadow-lg">
+        <div class="max-w-4xl mx-auto px-4 py-3">
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-3">
+                    <span class="text-sm font-semibold text-gray-700 dark:text-gray-300" id="currentPeriodName">Period 1</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400" id="currentPeriodTime">8:50 - 9:40</span>
+                </div>
+                <span class="text-xs font-medium text-primary" id="timeRemaining">50 mins left</span>
+            </div>
+            <div class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div id="progressBarFill" class="progress-bar-fill h-full bg-gradient-to-r from-primary to-purple-600 rounded-full" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Input Form View -->
+    <div id="inputView" class="hidden min-h-screen flex items-center justify-center p-4 py-12">
+        <div class="w-full max-w-2xl slide-in">
+            <!-- Header -->
+            <div class="text-center mb-10">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-purple-600 rounded-2xl mb-4 shadow-lg">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-5xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent mb-3">
+                    Swipe Timetable
+                </h1>
+                <p class="text-lg text-gray-600 dark:text-gray-400">Select todays lessons</p>
+            </div>
+
+            <!-- BromCom Button -->
+            <div class="text-center mb-6">
+                <a href="https://vle.bromcomcloud.com" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                    </svg>
+                    BromCom
+                </a>
+            </div>
+
+            <!-- Form Card -->
+            <form id="timetableForm" class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 space-y-5 border border-gray-200 dark:border-gray-700">
+                <!-- Period 1 -->
+                <div class="space-y-2">
+                    <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-primary bg-opacity-10 flex items-center justify-center text-primary text-xs">1</span>
+                        Period 1 - 8:50
+                    </label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="text" id="period1" class="input-focus w-full px-5 py-4 text-base rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" placeholder="e.g., Mathematics">
+                        <input type="text" id="room1" class="input-focus w-full px-5 py-4 text-base rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" placeholder="Room">
+                    </div>
+                </div>
+
+                <!-- Period 2 -->
+                <div class="space-y-2">
+                    <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-primary bg-opacity-10 flex items-center justify-center text-primary text-xs">2</span>
+                        Period 2 - 9:40
+                    </label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="text" id="period2" class="input-focus w-full px-5 py-4 text-base rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" placeholder="e.g., English">
+                        <input type="text" id="room2" class="input-focus w-full px-5 py-4 text-base rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" placeholder="Room">
+                    </div>
+                </div>
+
+                <!-- Break -->
+                <div class="space-y-2">
+                    <label class="text-xs font-semibold text-gray-400 dark:text-gray-600 uppercase tracking-wide flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+                        </svg>
+                        Morning Break - 10:30
+                    </label>
+                    <div class="px-5 py-4 rounded-xl glass-effect text-gray-500 dark:text-gray-400 text-base font-medium">
+                        Morning Break
+                    </div>
+                </div>
+
+                <!-- Period 3 -->
+                <div class="space-y-2">
+                    <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-primary bg-opacity-10 flex items-center justify-center text-primary text-xs">3</span>
+                        Period 3 - 10:50
+                    </label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="text" id="period3" class="input-focus w-full px-5 py-4 text-base rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" placeholder="e.g., Science">
+                        <input type="text" id="room3" class="input-focus w-full px-5 py-4 text-base rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" placeholder="Room">
+                    </div>
+                </div>
+
+                <!-- Period 4 -->
+                <div class="space-y-2">
+                    <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-primary bg-opacity-10 flex items-center justify-center text-primary text-xs">4</span>
+                        Period 4 - 11:40
+                    </label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="text" id="period4" class="input-focus w-full px-5 py-4 text-base rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" placeholder="e.g., History">
+                        <input type="text" id="room4" class="input-focus w-full px-5 py-4 text-base rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" placeholder="Room">
+                    </div>
+                </div>
+
+                <!-- Lunch -->
+                <div class="space-y-2">
+                    <label class="text-xs font-semibold text-gray-400 dark:text-gray-600 uppercase tracking-wide flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
+                        </svg>
+                        Lunch Break - 12:30
+                    </label>
+                    <div class="px-5 py-4 rounded-xl glass-effect text-gray-500 dark:text-gray-400 text-base font-medium">
+                        Lunch Break
+                    </div>
+                </div>
+
+                <!-- Period 5 -->
+                <div class="space-y-2">
+                    <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-primary bg-opacity-10 flex items-center justify-center text-primary text-xs">5</span>
+                        Period 5 - 1:10
+                    </label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="text" id="period5" class="input-focus w-full px-5 py-4 text-base rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" placeholder="e.g., Physical Education">
+                        <input type="text" id="room5" class="input-focus w-full px-5 py-4 text-base rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" placeholder="Room">
+                    </div>
+                </div>
+
+                <!-- Period 6 -->
+                <div class="space-y-2">
+                    <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-primary bg-opacity-10 flex items-center justify-center text-primary text-xs">6</span>
+                        Period 6 - 2:00
+                    </label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="text" id="period6" class="input-focus w-full px-5 py-4 text-base rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" placeholder="e.g., Art">
+                        <input type="text" id="room6" class="input-focus w-full px-5 py-4 text-base rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" placeholder="Room">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full mt-8 px-6 py-5 bg-gradient-to-r from-primary to-purple-600 hover:from-primary-dark hover:to-purple-700 text-white font-semibold rounded-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl flex items-center justify-center gap-2 group">
+                    <span>Save Timetable</span>
+                    <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard View -->
+    <div id="dashboardView" class="hidden min-h-screen p-4 md:p-8 py-12 pt-32">
+      	<br><br><br>
+        <div class="max-w-4xl mx-auto slide-in">
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-10">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-primary to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                            </svg>
+                        </div>
+                        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">Today's Schedule</h1>
+                    </div>
+                    <p class="text-lg text-gray-600 dark:text-gray-400 ml-1 flex items-center gap-2" id="currentDate">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <span id="dateText"></span>
+                    </p>
+                </div>
+                <div class="flex gap-3 flex-wrap">
+                    <!-- Layout Switcher -->
+                    <div class="relative">
+                        <button id="layoutBtn" class="px-5 py-3 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition-all flex items-center gap-2 border-2 border-gray-200 dark:border-gray-700">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                            </svg>
+                            <span id="layoutBtnText">Cards</span>
+                        </button>
+                        <!-- Layout Dropdown -->
+                        <div id="layoutDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 z-50">
+                            <button data-layout="cards" class="layout-option w-full px-4 py-3 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3 rounded-t-xl transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                                </svg>
+                                Cards
+                            </button>
+                            <button data-layout="list" class="layout-option w-full px-4 py-3 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3 transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                                </svg>
+                                List
+                            </button>
+                            <button data-layout="compact" class="layout-option w-full px-4 py-3 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3 transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                                </svg>
+                                Compact
+                            </button>
+                            <button data-layout="timeline" class="layout-option w-full px-4 py-3 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3 rounded-b-xl transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Timeline
+                            </button>
+                        </div>
+                    </div>
+                    <a href="https://vle.bromcomcloud.com" target="_blank" rel="noopener noreferrer" class="px-5 py-3 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                        </svg>
+                        BromCom
+                    </a>
+                    <button id="editBtn" class="px-6 py-3 text-sm font-semibold text-primary bg-primary bg-opacity-10 hover:bg-opacity-20 rounded-xl transition-all flex items-center gap-2 group border-2 border-primary border-opacity-20 hover:border-opacity-40">
+                        <svg class="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        <span>Edit Schedule</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Timetable Cards -->
+            <div id="timetableCards">
+                <!-- Cards will be inserted here by JavaScript -->
+            </div>
+
+            <!-- Footer Stats -->
+            <div class="mt-10 p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-primary" id="totalPeriods">0</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Classes</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-green-500">2</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Breaks</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-purple-500" id="freePeriods">0</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Free Periods</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-blue-500">2:50</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">School Ends</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dark mode support
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // Get elements
+        const inputView = document.getElementById('inputView');
+        const dashboardView = document.getElementById('dashboardView');
+        const timetableForm = document.getElementById('timetableForm');
+        const editBtn = document.getElementById('editBtn');
+        const dateText = document.getElementById('dateText');
+        const timetableCards = document.getElementById('timetableCards');
+        const totalPeriodsEl = document.getElementById('totalPeriods');
+        const freePeriodsEl = document.getElementById('freePeriods');
+        const progressBar = document.getElementById('progressBar');
+        const progressBarFill = document.getElementById('progressBarFill');
+        const currentPeriodName = document.getElementById('currentPeriodName');
+        const currentPeriodTime = document.getElementById('currentPeriodTime');
+        const timeRemaining = document.getElementById('timeRemaining');
+        const layoutBtn = document.getElementById('layoutBtn');
+        const layoutBtnText = document.getElementById('layoutBtnText');
+        const layoutDropdown = document.getElementById('layoutDropdown');
+
+        // Current layout
+        let currentLayout = 'cards';
+
+        // Persistent storage wrapper - tries multiple methods
+        const StorageManager = {
+            // Try localStorage, sessionStorage, cookies, and URL hash
+            getItem: function(key) {
+                // Try localStorage
+                try {
+                    const val = window.localStorage.getItem(key);
+                    if (val) {
+                        console.log('Retrieved from localStorage:', key);
+                        return val;
+                    }
+                } catch (e) {
+                    console.log('localStorage not available:', e.message);
+                }
+
+                // Try sessionStorage
+                try {
+                    const val = window.sessionStorage.getItem(key);
+                    if (val) {
+                        console.log('Retrieved from sessionStorage:', key);
+                        return val;
+                    }
+                } catch (e) {
+                    console.log('sessionStorage not available:', e.message);
+                }
+
+                // Try cookies
+                try {
+                    const cookies = document.cookie.split(';');
+                    for (let cookie of cookies) {
+                        const [cookieKey, cookieValue] = cookie.trim().split('=');
+                        if (cookieKey === key) {
+                            const decoded = decodeURIComponent(cookieValue);
+                            console.log('Retrieved from cookie:', key);
+                            return decoded;
+                        }
+                    }
+                } catch (e) {
+                    console.log('Cookies not available:', e.message);
+                }
+
+                console.log('No data found for key:', key);
+                return null;
+            },
+
+            setItem: function(key, value) {
+                let success = false;
+
+                // Try localStorage
+                try {
+                    window.localStorage.setItem(key, value);
+                    console.log('Saved to localStorage:', key);
+                    success = true;
+                } catch (e) {
+                    console.log('Cannot save to localStorage:', e.message);
+                }
+
+                // Try sessionStorage
+                try {
+                    window.sessionStorage.setItem(key, value);
+                    console.log('Saved to sessionStorage:', key);
+                    success = true;
+                } catch (e) {
+                    console.log('Cannot save to sessionStorage:', e.message);
+                }
+
+                // Try cookies
+                try {
+                    const expires = new Date();
+                    expires.setDate(expires.getDate() + 1); // 1 day expiry
+                    document.cookie = `${key}=${encodeURIComponent(value)}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`;
+                    console.log('Saved to cookie:', key);
+                    success = true;
+                } catch (e) {
+                    console.log('Cannot save to cookie:', e.message);
+                }
+
+                return success;
+            },
+
+            removeItem: function(key) {
+                // Try localStorage
+                try {
+                    window.localStorage.removeItem(key);
+                    console.log('Removed from localStorage:', key);
+                } catch (e) {
+                    // Ignore
+                }
+
+                // Try sessionStorage
+                try {
+                    window.sessionStorage.removeItem(key);
+                    console.log('Removed from sessionStorage:', key);
+                } catch (e) {
+                    // Ignore
+                }
+
+                // Try cookies
+                try {
+                    document.cookie = `${key}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+                    console.log('Removed from cookie:', key);
+                } catch (e) {
+                    // Ignore
+                }
+
+                return true;
+            }
+        };
+
+        const getStorageItem = (key) => StorageManager.getItem(key);
+        const setStorageItem = (key, value) => StorageManager.setItem(key, value);
+        const removeStorageItem = (key) => StorageManager.removeItem(key);
+
+        const STORAGE_KEY = 'swipe_timetable_data';
+        const LAYOUT_KEY = 'swipe_timetable_layout';
+
+        // Period times
+        const periodTimes = [
+            { name: 'Period 1', start: '08:50', end: '09:40', duration: 50 },
+            { name: 'Period 2', start: '09:40', end: '10:30', duration: 50 },
+            { name: 'Break', start: '10:30', end: '10:50', duration: 20 },
+            { name: 'Period 3', start: '10:50', end: '11:40', duration: 50 },
+            { name: 'Period 4', start: '11:40', end: '12:30', duration: 50 },
+            { name: 'Lunch', start: '12:30', end: '13:10', duration: 40 },
+            { name: 'Period 5', start: '13:10', end: '14:00', duration: 50 },
+            { name: 'Period 6', start: '14:00', end: '14:50', duration: 50 }
+        ];
+
+        // Get today's date string (YYYY-MM-DD)
+        function getTodayDateString() {
+            const today = new Date();
+            return today.toISOString().split('T')[0];
+        }
+
+        // Format date for display
+        function formatDate(dateString) {
+            const date = new Date(dateString + 'T00:00:00');
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        }
+
+        // Check if data is from today
+        function isDataFromToday(data) {
+            if (!data || !data.date) {
+                return false;
+            }
+            return data.date === getTodayDateString();
+        }
+
+        // Get default timetable data
+        function getDefaultData() {
+            return {
+                date: getTodayDateString(),
+                timestamp: new Date().toISOString(),
+                periods: {
+                    period1: '', room1: '',
+                    period2: '', room2: '',
+                    period3: '', room3: '',
+                    period4: '', room4: '',
+                    period5: '', room5: '',
+                    period6: '', room6: ''
+                }
+            };
+        }
+
+        // Get timetable data from storage
+        function getTimetableData() {
+            const data = getStorageItem(STORAGE_KEY);
+            if (!data) {
+                console.log('No data found in storage, returning default');
+                return getDefaultData();
+            }
+
+            try {
+                const parsed = JSON.parse(data);
+                console.log('Parsed data:', parsed);
+                if (isDataFromToday(parsed)) {
+                    return parsed;
+                } else {
+                    console.log('Data is old, returning default');
+                    return getDefaultData();
+                }
+            } catch (e) {
+                console.error('Parse error:', e);
+                return getDefaultData();
+            }
+        }
+
+        // Save timetable data to storage
+        function saveTimetableData(periods) {
+            const data = {
+                date: getTodayDateString(),
+                timestamp: new Date().toISOString(),
+                periods: periods
+            };
+            const jsonData = JSON.stringify(data);
+            console.log('Saving data:', jsonData);
+            const success = setStorageItem(STORAGE_KEY, jsonData);
+            console.log('Save successful:', success);
+            return success;
+        }
+
+        // Clear old data
+        function clearOldData() {
+            const data = getTimetableData();
+            if (data && !isDataFromToday(data)) {
+                console.log('Clearing old data');
+                removeStorageItem(STORAGE_KEY);
+            }
+        }
+
+        // Get saved layout
+        function getSavedLayout() {
+            const saved = getStorageItem(LAYOUT_KEY);
+            return saved || 'cards';
+        }
+
+        // Save layout preference
+        function saveLayout(layout) {
+            setStorageItem(LAYOUT_KEY, layout);
+        }
+
+        // Subject icon mapping
+        function getSubjectIcon(subject) {
+            const lower = subject.toLowerCase();
+
+            // English - Book icon
+            if (lower.includes('english') || lower.includes('literature') || lower.includes('language')) {
+                return 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253';
+            }
+
+            // Math - x² icon
+            if (lower.includes('math') || lower.includes('algebra') || lower.includes('geometry') || lower.includes('calculus')) {
+                return 'M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z';
+            }
+
+            // Science - Microscope/Flask icon
+            if (lower.includes('science') || lower.includes('chemistry') || lower.includes('physics') || lower.includes('biology')) {
+                return 'M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z';
+            }
+
+            // History - Clock icon
+            if (lower.includes('history') || lower.includes('geography') || lower.includes('social')) {
+                return 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z';
+            }
+
+            // Art/Music/Drama - Palette icon
+            if (lower.includes('art') || lower.includes('music') || lower.includes('drama')) {
+                return 'M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01';
+            }
+
+            // PE/Sports - Running icon
+            if (lower.includes('pe') || lower.includes('physical') || lower.includes('sport') || lower.includes('gym')) {
+                return 'M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5';
+            }
+
+            // Computer Science/IT - Code icon
+            if (lower.includes('computer') || lower.includes('it') || lower.includes('ict') || lower.includes('computing')) {
+                return 'M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4';
+            }
+
+            // Business/Economics - Chart icon
+            if (lower.includes('business') || lower.includes('economics') || lower.includes('accounting')) {
+                return 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z';
+            }
+
+            // Languages - Globe icon
+            if (lower.includes('french') || lower.includes('spanish') || lower.includes('german') || lower.includes('language')) {
+                return 'M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129';
+            }
+
+            // Default icon
+            return 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253';
+        }
+
+        // Get current period based on time
+        function getCurrentPeriod() {
+            const now = new Date();
+            const currentTime = now.getHours() * 60 + now.getMinutes();
+
+            for (let i = 0; i < periodTimes.length; i++) {
+                const period = periodTimes[i];
+                const startParts = period.start.split(':');
+                const endParts = period.end.split(':');
+                const startMinutes = parseInt(startParts[0]) * 60 + parseInt(startParts[1]);
+                const endMinutes = parseInt(endParts[0]) * 60 + parseInt(endParts[1]);
+
+                if (currentTime >= startMinutes && currentTime < endMinutes) {
+                    const elapsed = currentTime - startMinutes;
+                    const progress = (elapsed / period.duration) * 100;
+                    const remaining = period.duration - elapsed;
+                    return {
+                        period: period,
+                        progress: progress,
+                        remaining: remaining,
+                        index: i
+                    };
+                }
+            }
+
+            // After school
+            return null;
+        }
+
+        // Update progress bar
+        function updateProgressBar() {
+            const current = getCurrentPeriod();
+
+            if (current) {
+                progressBar.classList.remove('hidden');
+                currentPeriodName.textContent = current.period.name;
+                currentPeriodTime.textContent = `${current.period.start} - ${current.period.end}`;
+                timeRemaining.textContent = `${current.remaining} mins left`;
+                progressBarFill.style.width = `${current.progress}%`;
+            } else {
+                progressBar.classList.add('hidden');
+            }
+        }
+
+        // Render dashboard with different layouts
+        function renderDashboard(data) {
+            if (!data || !data.date || !data.periods) {
+                console.error('Invalid data:', data);
+                showInputView();
+                return;
+            }
+
+            dateText.textContent = formatDate(data.date);
+
+            const schedule = [
+                { type: 'period', label: 'Period 1', value: data.periods.period1, room: data.periods.room1, num: 1, time: '8:50' },
+                { type: 'period', label: 'Period 2', value: data.periods.period2, room: data.periods.room2, num: 2, time: '9:40' },
+                { type: 'break', label: 'Morning Break', value: 'Morning Break', time: '10:30' },
+                { type: 'period', label: 'Period 3', value: data.periods.period3, room: data.periods.room3, num: 3, time: '10:50' },
+                { type: 'period', label: 'Period 4', value: data.periods.period4, room: data.periods.room4, num: 4, time: '11:40' },
+                { type: 'break', label: 'Lunch Break', value: 'Lunch Break', time: '12:30' },
+                { type: 'period', label: 'Period 5', value: data.periods.period5, room: data.periods.room5, num: 5, time: '1:10' },
+                { type: 'period', label: 'Period 6', value: data.periods.period6, room: data.periods.room6, num: 6, time: '2:00' }
+            ];
+
+            let totalClasses = 0;
+            let freeClasses = 0;
+
+            schedule.forEach(item => {
+                const isEmpty = !item.value || item.value.trim() === '';
+                if (item.type === 'period') {
+                    if (!isEmpty) {
+                        totalClasses++;
+                    } else {
+                        freeClasses++;
+                    }
+                }
+            });
+
+            totalPeriodsEl.textContent = totalClasses;
+            freePeriodsEl.textContent = freeClasses;
+
+            // Render based on current layout
+            if (currentLayout === 'cards') {
+                renderCardsLayout(schedule);
+            } else if (currentLayout === 'list') {
+                renderListLayout(schedule);
+            } else if (currentLayout === 'compact') {
+                renderCompactLayout(schedule);
+            } else if (currentLayout === 'timeline') {
+                renderTimelineLayout(schedule);
+            }
+
+            // Update progress bar
+            updateProgressBar();
+        }
+
+        // Cards Layout (original)
+        function renderCardsLayout(schedule) {
+            const gradients = [
+                'from-blue-500 to-blue-600',
+                'from-purple-500 to-purple-600',
+                'from-pink-500 to-pink-600',
+                'from-indigo-500 to-indigo-600',
+                'from-teal-500 to-teal-600',
+                'from-orange-500 to-orange-600'
+            ];
+
+            const cards = schedule.map((item, index) => {
+                const isBreak = item.type === 'break';
+                const isEmpty = !item.value || item.value.trim() === '';
+                const gradient = isBreak ? 'from-gray-400 to-gray-500' : gradients[(item.num - 1) % gradients.length];
+
+                return `
+                    <div class="card-hover bg-white dark:bg-gray-800 rounded-2xl p-6 border-2 ${isBreak ? 'border-gray-200 dark:border-gray-700' : 'border-primary border-opacity-20 dark:border-opacity-30'} shadow-lg" style="animation-delay: ${index * 50}ms;">
+                        <div class="flex items-center gap-4">
+                            <div class="period-icon flex-shrink-0 w-14 h-14 bg-gradient-to-br ${gradient} rounded-xl flex items-center justify-center shadow-lg">
+                                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${isEmpty && !isBreak ? 'M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' : getSubjectIcon(item.value)}"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-xs font-bold ${isBreak ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400'} uppercase tracking-wider mb-1">
+                                    ${item.label}
+                                </div>
+                                <div class="text-xl font-bold ${isBreak ? 'text-gray-600 dark:text-gray-400' : isEmpty ? 'text-gray-400 dark:text-gray-500' : 'text-gray-900 dark:text-white'} truncate">
+                                    ${isBreak ? item.value : (item.value || 'Free Period')}
+                                </div>
+                                ${!isBreak && item.room ? `
+                                    <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                        📍 ${item.room}
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div class="flex-shrink-0 text-right">
+                                <div class="text-lg font-bold text-primary">
+                                    ${item.time}
+                                </div>
+                                ${!isBreak && !isEmpty ? `
+                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse mx-auto mt-2"></div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            timetableCards.innerHTML = '<div class="grid gap-4">' + cards + '</div>';
+        }
+
+        // List Layout
+        function renderListLayout(schedule) {
+            const list = schedule.map((item, index) => {
+                const isBreak = item.type === 'break';
+                const isEmpty = !item.value || item.value.trim() === '';
+
+                return `
+                    <div class="card-hover flex items-center gap-4 p-4 bg-white dark:bg-gray-800 rounded-xl border-l-4 ${isBreak ? 'border-gray-300 dark:border-gray-600' : 'border-primary'} shadow-md">
+                        <div class="flex-shrink-0 text-2xl font-bold text-primary w-16">
+                            ${item.time}
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-sm text-gray-500 dark:text-gray-400">${item.label}</div>
+                            <div class="text-lg font-bold ${isEmpty && !isBreak ? 'text-gray-400' : 'text-gray-900 dark:text-white'}">
+                                ${isBreak ? item.value : (item.value || 'Free Period')}
+                            </div>
+                            ${!isBreak && item.room ? `<div class="text-sm text-gray-500">📍 ${item.room}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            timetableCards.innerHTML = '<div class="space-y-3">' + list + '</div>';
+        }
+
+        // Compact Layout
+        function renderCompactLayout(schedule) {
+            const rows = schedule.map((item, index) => {
+                const isBreak = item.type === 'break';
+                const isEmpty = !item.value || item.value.trim() === '';
+
+                return `
+                    <tr class="card-hover border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        <td class="py-3 px-4 font-semibold text-primary">${item.time}</td>
+                        <td class="py-3 px-4 text-sm text-gray-500 dark:text-gray-400">${item.label}</td>
+                        <td class="py-3 px-4 font-semibold ${isEmpty && !isBreak ? 'text-gray-400' : 'text-gray-900 dark:text-white'}">
+                            ${isBreak ? item.value : (item.value || 'Free Period')}
+                        </td>
+                        <td class="py-3 px-4 text-sm text-gray-500 dark:text-gray-400">
+                            ${!isBreak && item.room ? `📍 ${item.room}` : ''}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            timetableCards.innerHTML = `
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 dark:bg-gray-900">
+                            <tr>
+                                <th class="py-3 px-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Time</th>
+                                <th class="py-3 px-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Period</th>
+                                <th class="py-3 px-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Subject</th>
+                                <th class="py-3 px-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Room</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rows}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        // Timeline Layout
+        function renderTimelineLayout(schedule) {
+            const timeline = schedule.map((item, index) => {
+                const isBreak = item.type === 'break';
+                const isEmpty = !item.value || item.value.trim() === '';
+
+                return `
+                    <div class="relative pl-8 pb-8">
+                        <div class="absolute left-0 top-0 w-4 h-4 rounded-full ${isBreak ? 'bg-gray-400' : 'bg-primary'} border-4 border-white dark:border-gray-900 shadow-lg"></div>
+                        ${index < schedule.length - 1 ? '<div class="absolute left-[7px] top-4 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700"></div>' : ''}
+                        <div class="card-hover bg-white dark:bg-gray-800 rounded-xl p-4 shadow-md border border-gray-200 dark:border-gray-700">
+                            <div class="flex items-start justify-between mb-2">
+                                <div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">${item.label}</div>
+                                    <div class="text-xl font-bold ${isEmpty && !isBreak ? 'text-gray-400' : 'text-gray-900 dark:text-white'}">
+                                        ${isBreak ? item.value : (item.value || 'Free Period')}
+                                    </div>
+                                    ${!isBreak && item.room ? `<div class="text-sm text-gray-500 mt-1">📍 ${item.room}</div>` : ''}
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-lg font-bold text-primary">${item.time}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            timetableCards.innerHTML = '<div class="relative">' + timeline + '</div>';
+        }
+
+        // Show input view
+        function showInputView() {
+            inputView.classList.remove('hidden');
+            dashboardView.classList.add('hidden');
+            progressBar.classList.add('hidden');
+        }
+
+        // Show dashboard view
+        function showDashboardView(data) {
+            renderDashboard(data);
+            inputView.classList.add('hidden');
+            dashboardView.classList.remove('hidden');
+        }
+
+        // Handle layout button click
+        layoutBtn.addEventListener('click', () => {
+            layoutDropdown.classList.toggle('hidden');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!layoutBtn.contains(e.target) && !layoutDropdown.contains(e.target)) {
+                layoutDropdown.classList.add('hidden');
+            }
+        });
+
+        // Handle layout selection
+        document.querySelectorAll('.layout-option').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const layout = e.currentTarget.dataset.layout;
+                currentLayout = layout;
+                saveLayout(layout);
+
+                // Update button text
+                const layoutNames = {
+                    'cards': 'Cards',
+                    'list': 'List',
+                    'compact': 'Compact',
+                    'timeline': 'Timeline'
+                };
+                layoutBtnText.textContent = layoutNames[layout];
+
+                // Hide dropdown
+                layoutDropdown.classList.add('hidden');
+
+                // Re-render dashboard
+                const data = getTimetableData();
+                renderDashboard(data);
+            });
+        });
+
+        // Handle form submission
+        timetableForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            console.log('=== FORM SUBMIT STARTED ===');
+
+            try {
+                const periods = {
+                    period1: document.getElementById('period1').value.trim(),
+                    room1: document.getElementById('room1').value.trim(),
+                    period2: document.getElementById('period2').value.trim(),
+                    room2: document.getElementById('room2').value.trim(),
+                    period3: document.getElementById('period3').value.trim(),
+                    room3: document.getElementById('room3').value.trim(),
+                    period4: document.getElementById('period4').value.trim(),
+                    room4: document.getElementById('room4').value.trim(),
+                    period5: document.getElementById('period5').value.trim(),
+                    room5: document.getElementById('room5').value.trim(),
+                    period6: document.getElementById('period6').value.trim(),
+                    room6: document.getElementById('room6').value.trim()
+                };
+
+                console.log('Periods collected:', JSON.stringify(periods));
+
+                // Try to save the data
+                saveTimetableData(periods);
+
+                // Create data object to display
+                const data = {
+                    date: getTodayDateString(),
+                    timestamp: new Date().toISOString(),
+                    periods: periods
+                };
+
+                console.log('=== SHOWING DASHBOARD ===');
+                showDashboardView(data);
+            } catch (error) {
+                console.error('Form submission error:', error);
+            }
+
+            console.log('=== FORM SUBMIT ENDED ===');
+        });
+
+        // Handle edit button
+        editBtn.addEventListener('click', () => {
+            const data = getTimetableData();
+            if (data && data.periods) {
+                document.getElementById('period1').value = data.periods.period1 || '';
+                document.getElementById('room1').value = data.periods.room1 || '';
+                document.getElementById('period2').value = data.periods.period2 || '';
+                document.getElementById('room2').value = data.periods.room2 || '';
+                document.getElementById('period3').value = data.periods.period3 || '';
+                document.getElementById('room3').value = data.periods.room3 || '';
+                document.getElementById('period4').value = data.periods.period4 || '';
+                document.getElementById('room4').value = data.periods.room4 || '';
+                document.getElementById('period5').value = data.periods.period5 || '';
+                document.getElementById('room5').value = data.periods.room5 || '';
+                document.getElementById('period6').value = data.periods.period6 || '';
+                document.getElementById('room6').value = data.periods.room6 || '';
+            }
+            showInputView();
+        });
+
+        // Initialize app
+        function init() {
+            clearOldData();
+
+            // Load saved layout
+            currentLayout = getSavedLayout();
+            const layoutNames = {
+                'cards': 'Cards',
+                'list': 'List',
+                'compact': 'Compact',
+                'timeline': 'Timeline'
+            };
+            layoutBtnText.textContent = layoutNames[currentLayout];
+
+            const data = getTimetableData();
+            console.log('Init - data:', data);
+
+            // Always show dashboard with data (default or saved)
+            showDashboardView(data);
+        }
+
+        // Run initialization
+        init();
+
+        // Update progress bar every minute
+        setInterval(updateProgressBar, 60000);
+
+        // Check for day change every minute
+        setInterval(() => {
+            const data = getTimetableData();
+            if (data && !isDataFromToday(data)) {
+                removeStorageItem(STORAGE_KEY);
+                showInputView();
+            }
+        }, 60000);
+    </script>
+
+</body>
+</html>
+
