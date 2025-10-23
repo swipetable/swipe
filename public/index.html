@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Swipe Timetable</title>
+    <title>SwipeTable - Timetable</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -194,6 +194,9 @@
                 </button>
                 <button id="imageViewTab" class="flex-1 px-4 py-2 rounded-xl font-semibold transition-all text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
                     Image View
+                </button>
+                <button id="toolsViewTab" class="flex-1 px-4 py-2 rounded-xl font-semibold transition-all text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    Tools View
                 </button>
             </div><br>
 
@@ -899,6 +902,16 @@
             textViewTab.classList.add('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
             textViewContainer.classList.add('hidden');
             imageViewContainer.classList.remove('hidden');
+        });
+        
+        toolsViewTab.addEventListener('click', () => {
+            currentView = 'tools';
+            imageViewTab.classList.remove('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
+            textViewTab.classList.remove('bg-primary', 'text-white');
+            textViewContainer.classList.remove('hidden');
+            imageViewContainer.classList.remove('hidden');
+            textViewContainer.classList.add('hidden');
+            imageViewContainer.classList.add('hidden');
         });
 
         // Image upload handling
