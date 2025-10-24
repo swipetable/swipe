@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SwipeTable - Timetable</title>
+    <title>SwipeTable - Timetable & Tools</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -42,6 +42,8 @@
         .image-viewer.zoomed { cursor: zoom-out; object-fit: none; }
         @keyframes pulse-border { 0%, 100% { border-color: #5D5CDE; } 50% { border-color: #9b9aed; } }
         .pulse-border { animation: pulse-border 2s ease-in-out infinite; }
+        .tool-card { transition: all 0.3s ease; }
+        .tool-card:hover { transform: translateY(-5px); }
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-[#181818] min-h-screen transition-colors duration-300">
@@ -207,7 +209,7 @@
                         <div class="flex items-center gap-3 mb-3">
                             <div class="w-12 h-12 bg-gradient-to-br from-primary to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
                                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                 </svg>
                             </div>
                             <h1 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">Today's Schedule</h1>
@@ -368,6 +370,343 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Tools View Container -->
+            <div id="toolsViewContainer" class="hidden">
+                <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 border border-gray-200 dark:border-gray-700">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+                        <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        Student Tools
+                    </h2>
+
+                    <!-- Tools Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                        <!-- Calculator Tool -->
+                        <div class="tool-card bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-2xl p-6 border border-blue-200 dark:border-blue-700">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Calculator</h3>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Basic calculator for quick math</p>
+                            <button onclick="openCalculator()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-all">
+                                Open Calculator
+                            </button>
+                        </div>
+
+                        <!-- Stopwatch Tool -->
+                        <div class="tool-card bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-2xl p-6 border border-green-200 dark:border-green-700">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Stopwatch</h3>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Track time for activities</p>
+                            <button onclick="openStopwatch()" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-all">
+                                Open Stopwatch
+                            </button>
+                        </div>
+
+                        <!-- Timer Tool -->
+                        <div class="tool-card bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-2xl p-6 border border-purple-200 dark:border-purple-700">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Timer</h3>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Set countdown timers</p>
+                            <button onclick="openTimer()" class="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg transition-all">
+                                Open Timer
+                            </button>
+                        </div>
+
+                        <!-- Notes Tool -->
+                        <div class="tool-card bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 rounded-2xl p-6 border border-yellow-200 dark:border-yellow-700">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 bg-yellow-500 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Quick Notes</h3>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Take quick notes</p>
+                            <button onclick="openNotes()" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg transition-all">
+                                Open Notes
+                            </button>
+                        </div>
+
+                        <!-- Converter Tool -->
+                        <div class="tool-card bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 rounded-2xl p-6 border border-red-200 dark:border-red-700">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Unit Converter</h3>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Convert between units</p>
+                            <button onclick="openConverter()" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition-all">
+                                Open Converter
+                            </button>
+                        </div>
+
+                        <!-- Pomodoro Tool -->
+                        <div class="tool-card bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 rounded-2xl p-6 border border-indigo-200 dark:border-indigo-700">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 bg-indigo-500 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Pomodoro Timer</h3>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Study with focus sessions</p>
+                            <button onclick="openPomodoro()" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg transition-all">
+                                Open Pomodoro
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Active Tool Display Area -->
+                    <div id="activeToolArea" class="bg-gray-50 dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-700">
+                        <div id="noToolSelected" class="text-center py-12">
+                            <div class="w-16 h-16 mx-auto mb-4 bg-primary bg-opacity-10 rounded-full flex items-center justify-center">
+                                <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-700 dark:text-gray-300 mb-2">No Tool Selected</h3>
+                            <p class="text-gray-500 dark:text-gray-400">Select a tool from above to get started</p>
+                        </div>
+
+                        <!-- Calculator Tool Content -->
+                        <div id="calculatorTool" class="hidden">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Calculator</h3>
+                                <button onclick="closeTool()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="bg-white dark:bg-gray-800 rounded-xl p-4 mb-4 border border-gray-200 dark:border-gray-700">
+                                <input type="text" id="calcDisplay" readonly class="w-full text-right text-2xl font-bold bg-transparent outline-none text-gray-900 dark:text-white" value="0">
+                            </div>
+                            <div class="grid grid-cols-4 gap-3">
+                                <button class="calc-btn bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 p-4 rounded-lg font-semibold text-gray-900 dark:text-white" onclick="clearCalculator()">C</button>
+                                <button class="calc-btn bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 p-4 rounded-lg font-semibold text-gray-900 dark:text-white" onclick="backspace()">⌫</button>
+                                <button class="calc-btn bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 p-4 rounded-lg font-semibold text-gray-900 dark:text-white" onclick="appendToCalc('/')">/</button>
+                                <button class="calc-btn bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 p-4 rounded-lg font-semibold text-gray-900 dark:text-white" onclick="appendToCalc('*')">×</button>
+                                
+                                <button class="calc-btn bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 p-4 rounded-lg font-semibold text-gray-900 dark:text-white" onclick="appendToCalc('7')">7</button>
+                                <button class="calc-btn bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 p-4 rounded-lg font-semibold text-gray-900 dark:text-white" onclick="appendToCalc('8')">8</button>
+                                <button class="calc-btn bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 p-4 rounded-lg font-semibold text-gray-900 dark:text-white" onclick="appendToCalc('9')">9</button>
+                                <button class="calc-btn bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 p-4 rounded-lg font-semibold text-gray-900 dark:text-white" onclick="appendToCalc('-')">-</button>
+                                
+                                <button class="calc-btn bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 p-4 rounded-lg font-semibold text-gray-900 dark:text-white" onclick="appendToCalc('4')">4</button>
+                                <button class="calc-btn bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 p-4 rounded-lg font-semibold text-gray-900 dark:text-white" onclick="appendToCalc('5')">5</button>
+                                <button class="calc-btn bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 p-4 rounded-lg font-semibold text-gray-900 dark:text-white" onclick="appendToCalc('6')">6</button>
+                                <button class="calc-btn bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 p-4 rounded-lg font-semibold text-gray-900 dark:text-white" onclick="appendToCalc('+')">+</button>
+                                
+                                <button class="calc-btn bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 p-4 rounded-lg font-semibold text-gray-900 dark:text-white" onclick="appendToCalc('1')">1</button>
+                                <button class="calc-btn bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 p-4 rounded-lg font-semibold text-gray-900 dark:text-white" onclick="appendToCalc('2')">2</button>
+                                <button class="calc-btn bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 p-4 rounded-lg font-semibold text-gray-900 dark:text-white" onclick="appendToCalc('3')">3</button>
+                                <button class="calc-btn bg-primary hover:bg-primary-dark text-white p-4 rounded-lg font-semibold row-span-2" onclick="calculateResult()">=</button>
+                                
+                                <button class="calc-btn bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 p-4 rounded-lg font-semibold text-gray-900 dark:text-white col-span-2" onclick="appendToCalc('0')">0</button>
+                                <button class="calc-btn bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 p-4 rounded-lg font-semibold text-gray-900 dark:text-white" onclick="appendToCalc('.')">.</button>
+                            </div>
+                        </div>
+
+                        <!-- Stopwatch Tool Content -->
+                        <div id="stopwatchTool" class="hidden">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Stopwatch</h3>
+                                <button onclick="closeTool()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="text-center mb-8">
+                                <div id="stopwatchDisplay" class="text-6xl font-bold text-gray-900 dark:text-white mb-6 font-mono">00:00:00</div>
+                                <div class="flex justify-center gap-4">
+                                    <button id="startStopwatch" onclick="startStopwatch()" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg transition-all">
+                                        Start
+                                    </button>
+                                    <button id="lapStopwatch" onclick="lapStopwatch()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition-all" disabled>
+                                        Lap
+                                    </button>
+                                    <button id="resetStopwatch" onclick="resetStopwatch()" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-6 rounded-lg transition-all">
+                                        Reset
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="lapTimes" class="max-h-40 overflow-y-auto">
+                                <!-- Lap times will appear here -->
+                            </div>
+                        </div>
+
+                        <!-- Timer Tool Content -->
+                        <div id="timerTool" class="hidden">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Timer</h3>
+                                <button onclick="closeTool()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="text-center mb-8">
+                                <div class="flex justify-center gap-2 mb-4">
+                                    <input type="number" id="timerHours" min="0" max="23" class="w-20 text-center text-2xl font-bold bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg p-2 text-gray-900 dark:text-white" value="0">
+                                    <span class="text-2xl font-bold text-gray-900 dark:text-white self-center">:</span>
+                                    <input type="number" id="timerMinutes" min="0" max="59" class="w-20 text-center text-2xl font-bold bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg p-2 text-gray-900 dark:text-white" value="5">
+                                    <span class="text-2xl font-bold text-gray-900 dark:text-white self-center">:</span>
+                                    <input type="number" id="timerSeconds" min="0" max="59" class="w-20 text-center text-2xl font-bold bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg p-2 text-gray-900 dark:text-white" value="0">
+                                </div>
+                                <div id="timerDisplay" class="text-6xl font-bold text-gray-900 dark:text-white mb-6 font-mono">05:00</div>
+                                <div class="flex justify-center gap-4">
+                                    <button id="startTimer" onclick="startTimer()" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg transition-all">
+                                        Start
+                                    </button>
+                                    <button id="pauseTimer" onclick="pauseTimer()" class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-6 rounded-lg transition-all" disabled>
+                                        Pause
+                                    </button>
+                                    <button id="resetTimer" onclick="resetTimer()" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-6 rounded-lg transition-all">
+                                        Reset
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notes Tool Content -->
+                        <div id="notesTool" class="hidden">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Quick Notes</h3>
+                                <button onclick="closeTool()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <textarea id="notesTextarea" placeholder="Type your notes here..." class="w-full h-64 p-4 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white resize-none focus:ring-2 focus:ring-primary focus:border-primary outline-none"></textarea>
+                            <div class="flex justify-between mt-4">
+                                <button onclick="saveNotes()" class="bg-primary hover:bg-primary-dark text-white font-semibold py-2 px-4 rounded-lg transition-all">
+                                    Save Notes
+                                </button>
+                                <button onclick="clearNotes()" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-all">
+                                    Clear
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Converter Tool Content -->
+                        <div id="converterTool" class="hidden">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Unit Converter</h3>
+                                <button onclick="closeTool()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">From</label>
+                                        <select id="convertFrom" class="w-full p-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white">
+                                            <option value="cm">Centimeters</option>
+                                            <option value="m">Meters</option>
+                                            <option value="km">Kilometers</option>
+                                            <option value="in">Inches</option>
+                                            <option value="ft">Feet</option>
+                                            <option value="mi">Miles</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">To</label>
+                                        <select id="convertTo" class="w-full p-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white">
+                                            <option value="cm">Centimeters</option>
+                                            <option value="m">Meters</option>
+                                            <option value="km">Kilometers</option>
+                                            <option value="in">Inches</option>
+                                            <option value="ft">Feet</option>
+                                            <option value="mi" selected>Miles</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Value</label>
+                                    <input type="number" id="convertValue" class="w-full p-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white" value="1" step="0.01">
+                                </div>
+                                <button onclick="convertUnits()" class="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-3 px-4 rounded-lg transition-all">
+                                    Convert
+                                </button>
+                                <div id="conversionResult" class="mt-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 text-center">
+                                    <div class="text-2xl font-bold text-primary" id="resultValue">0</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400" id="resultUnit"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pomodoro Tool Content -->
+                        <div id="pomodoroTool" class="hidden">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Pomodoro Timer</h3>
+                                <button onclick="closeTool()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="text-center mb-8">
+                                <div class="mb-6">
+                                    <div id="pomodoroDisplay" class="text-6xl font-bold text-gray-900 dark:text-white mb-2 font-mono">25:00</div>
+                                    <div id="pomodoroStatus" class="text-lg text-gray-600 dark:text-gray-400">Focus Time</div>
+                                </div>
+                                <div class="flex justify-center gap-4 mb-6">
+                                    <button id="startPomodoro" onclick="startPomodoro()" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg transition-all">
+                                        Start
+                                    </button>
+                                    <button id="pausePomodoro" onclick="pausePomodoro()" class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-6 rounded-lg transition-all" disabled>
+                                        Pause
+                                    </button>
+                                    <button id="resetPomodoro" onclick="resetPomodoro()" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-6 rounded-lg transition-all">
+                                        Reset
+                                    </button>
+                                </div>
+                                <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                                    <div class="grid grid-cols-2 gap-4 text-sm">
+                                        <div class="text-center">
+                                            <div class="font-semibold text-gray-700 dark:text-gray-300">Focus Time</div>
+                                            <div class="text-2xl font-bold text-primary">25 min</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="font-semibold text-gray-700 dark:text-gray-300">Break Time</div>
+                                            <div class="text-2xl font-bold text-green-500">5 min</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -404,8 +743,10 @@
         // Tab elements
         const textViewTab = document.getElementById('textViewTab');
         const imageViewTab = document.getElementById('imageViewTab');
+        const toolsViewTab = document.getElementById('toolsViewTab');
         const textViewContainer = document.getElementById('textViewContainer');
         const imageViewContainer = document.getElementById('imageViewContainer');
+        const toolsViewContainer = document.getElementById('toolsViewContainer');
 
         // Image upload elements
         const imageInput = document.getElementById('imageInput');
@@ -418,6 +759,27 @@
         let currentLayout = 'cards';
         let currentView = 'text';
         let isZoomed = false;
+
+        // Tools variables
+        let currentTool = null;
+        let calcValue = '0';
+        let waitingForSecondOperand = false;
+        let operator = null;
+        let firstOperand = null;
+        
+        let stopwatchInterval;
+        let stopwatchTime = 0;
+        let stopwatchRunning = false;
+        let lapCount = 1;
+        
+        let timerInterval;
+        let timerTime = 300; // 5 minutes default
+        let timerRunning = false;
+        
+        let pomodoroInterval;
+        let pomodoroTime = 1500; // 25 minutes in seconds
+        let pomodoroRunning = false;
+        let isPomodoroBreak = false;
 
         const StorageManager = {
             getItem: function(key) {
@@ -921,14 +1283,14 @@
         toolsViewTab.addEventListener('click', () => {
             currentView = 'tools';
             
-            textViewTab.classList.add('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
             textViewTab.classList.remove('bg-primary', 'text-white');
+            textViewTab.classList.add('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
             
-            imageViewTab.classList.add('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
             imageViewTab.classList.remove('bg-primary', 'text-white');
+            imageViewTab.classList.add('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
             
-            toolsViewTab.classList.remove('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
             toolsViewTab.classList.add('bg-primary', 'text-white');
+            toolsViewTab.classList.remove('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
             
             textViewContainer.classList.add('hidden');
             imageViewContainer.classList.add('hidden');
@@ -1040,6 +1402,326 @@
 
         addClassesBtn.addEventListener('click', () => showInputView());
 
+        // Tools functionality
+        // Tool management functions
+        function openTool(toolId) {
+            document.getElementById('noToolSelected').classList.add('hidden');
+            if (currentTool) {
+                document.getElementById(currentTool).classList.add('hidden');
+            }
+            document.getElementById(toolId).classList.remove('hidden');
+            currentTool = toolId;
+        }
+
+        function closeTool() {
+            if (currentTool) {
+                document.getElementById(currentTool).classList.add('hidden');
+                currentTool = null;
+            }
+            document.getElementById('noToolSelected').classList.remove('hidden');
+        }
+
+        // Tool-specific functions
+        function openCalculator() { openTool('calculatorTool'); }
+        function openStopwatch() { openTool('stopwatchTool'); }
+        function openTimer() { openTool('timerTool'); }
+        function openNotes() { openTool('notesTool'); }
+        function openConverter() { openTool('converterTool'); }
+        function openPomodoro() { openTool('pomodoroTool'); }
+
+        // Calculator functionality
+        function updateCalcDisplay() {
+            document.getElementById('calcDisplay').value = calcValue;
+        }
+
+        function appendToCalc(number) {
+            if (waitingForSecondOperand) {
+                calcValue = number;
+                waitingForSecondOperand = false;
+            } else {
+                calcValue = calcValue === '0' ? number : calcValue + number;
+            }
+            updateCalcDisplay();
+        }
+
+        function clearCalculator() {
+            calcValue = '0';
+            firstOperand = null;
+            operator = null;
+            waitingForSecondOperand = false;
+            updateCalcDisplay();
+        }
+
+        function backspace() {
+            if (calcValue.length > 1) {
+                calcValue = calcValue.slice(0, -1);
+            } else {
+                calcValue = '0';
+            }
+            updateCalcDisplay();
+        }
+
+        function calculateResult() {
+            if (operator && firstOperand !== null) {
+                const secondOperand = parseFloat(calcValue);
+                let result;
+                
+                switch (operator) {
+                    case '+': result = firstOperand + secondOperand; break;
+                    case '-': result = firstOperand - secondOperand; break;
+                    case '*': result = firstOperand * secondOperand; break;
+                    case '/': result = firstOperand / secondOperand; break;
+                    default: return;
+                }
+                
+                calcValue = String(result);
+                operator = null;
+                firstOperand = null;
+                waitingForSecondOperand = true;
+                updateCalcDisplay();
+            }
+        }
+
+        // Stopwatch functionality
+        function startStopwatch() {
+            if (!stopwatchRunning) {
+                stopwatchRunning = true;
+                document.getElementById('startStopwatch').textContent = 'Pause';
+                document.getElementById('lapStopwatch').disabled = false;
+                stopwatchInterval = setInterval(() => {
+                    stopwatchTime++;
+                    updateStopwatchDisplay();
+                }, 1000);
+            } else {
+                stopwatchRunning = false;
+                document.getElementById('startStopwatch').textContent = 'Resume';
+                clearInterval(stopwatchInterval);
+            }
+        }
+
+        function resetStopwatch() {
+            stopwatchRunning = false;
+            clearInterval(stopwatchInterval);
+            stopwatchTime = 0;
+            lapCount = 1;
+            document.getElementById('startStopwatch').textContent = 'Start';
+            document.getElementById('lapStopwatch').disabled = true;
+            document.getElementById('lapTimes').innerHTML = '';
+            updateStopwatchDisplay();
+        }
+
+        function lapStopwatch() {
+            const lapTime = formatTime(stopwatchTime);
+            const lapElement = document.createElement('div');
+            lapElement.className = 'flex justify-between py-2 border-b border-gray-200 dark:border-gray-700';
+            lapElement.innerHTML = `
+                <span class="text-gray-600 dark:text-gray-400">Lap ${lapCount}</span>
+                <span class="font-mono text-gray-900 dark:text-white">${lapTime}</span>
+            `;
+            document.getElementById('lapTimes').appendChild(lapElement);
+            lapCount++;
+        }
+
+        function updateStopwatchDisplay() {
+            document.getElementById('stopwatchDisplay').textContent = formatTime(stopwatchTime);
+        }
+
+        function formatTime(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Timer functionality
+        function startTimer() {
+            if (!timerRunning) {
+                const hours = parseInt(document.getElementById('timerHours').value) || 0;
+                const minutes = parseInt(document.getElementById('timerMinutes').value) || 0;
+                const seconds = parseInt(document.getElementById('timerSeconds').value) || 0;
+                
+                timerTime = hours * 3600 + minutes * 60 + seconds;
+                
+                if (timerTime > 0) {
+                    timerRunning = true;
+                    document.getElementById('startTimer').disabled = true;
+                    document.getElementById('pauseTimer').disabled = false;
+                    document.getElementById('timerHours').disabled = true;
+                    document.getElementById('timerMinutes').disabled = true;
+                    document.getElementById('timerSeconds').disabled = true;
+                    
+                    timerInterval = setInterval(() => {
+                        timerTime--;
+                        updateTimerDisplay();
+                        
+                        if (timerTime <= 0) {
+                            clearInterval(timerInterval);
+                            timerRunning = false;
+                            alert('Timer finished!');
+                            resetTimer();
+                        }
+                    }, 1000);
+                }
+            }
+        }
+
+        function pauseTimer() {
+            if (timerRunning) {
+                timerRunning = false;
+                clearInterval(timerInterval);
+                document.getElementById('startTimer').disabled = false;
+                document.getElementById('pauseTimer').disabled = true;
+            }
+        }
+
+        function resetTimer() {
+            timerRunning = false;
+            clearInterval(timerInterval);
+            timerTime = 300; // Reset to 5 minutes
+            document.getElementById('startTimer').disabled = false;
+            document.getElementById('pauseTimer').disabled = true;
+            document.getElementById('timerHours').disabled = false;
+            document.getElementById('timerMinutes').disabled = false;
+            document.getElementById('timerSeconds').disabled = false;
+            document.getElementById('timerHours').value = '0';
+            document.getElementById('timerMinutes').value = '5';
+            document.getElementById('timerSeconds').value = '0';
+            updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() {
+            const hours = Math.floor(timerTime / 3600);
+            const minutes = Math.floor((timerTime % 3600) / 60);
+            const seconds = timerTime % 60;
+            
+            if (hours > 0) {
+                document.getElementById('timerDisplay').textContent = 
+                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            } else {
+                document.getElementById('timerDisplay').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+        }
+
+        // Notes functionality
+        function saveNotes() {
+            const notes = document.getElementById('notesTextarea').value;
+            localStorage.setItem('studentNotes', notes);
+            alert('Notes saved!');
+        }
+
+        function clearNotes() {
+            if (confirm('Are you sure you want to clear all notes?')) {
+                document.getElementById('notesTextarea').value = '';
+                localStorage.removeItem('studentNotes');
+            }
+        }
+
+        // Converter functionality
+        function convertUnits() {
+            const fromUnit = document.getElementById('convertFrom').value;
+            const toUnit = document.getElementById('convertTo').value;
+            const value = parseFloat(document.getElementById('convertValue').value);
+            
+            if (isNaN(value)) {
+                alert('Please enter a valid number');
+                return;
+            }
+            
+            // Conversion factors relative to meters
+            const conversionFactors = {
+                cm: 0.01,
+                m: 1,
+                km: 1000,
+                in: 0.0254,
+                ft: 0.3048,
+                mi: 1609.34
+            };
+            
+            // Convert to meters first, then to target unit
+            const valueInMeters = value * conversionFactors[fromUnit];
+            const result = valueInMeters / conversionFactors[toUnit];
+            
+            document.getElementById('resultValue').textContent = result.toFixed(4);
+            document.getElementById('resultUnit').textContent = getUnitName(toUnit);
+        }
+
+        function getUnitName(unit) {
+            const unitNames = {
+                cm: 'Centimeters',
+                m: 'Meters',
+                km: 'Kilometers',
+                in: 'Inches',
+                ft: 'Feet',
+                mi: 'Miles'
+            };
+            return unitNames[unit];
+        }
+
+        // Pomodoro functionality
+        function startPomodoro() {
+            if (!pomodoroRunning) {
+                pomodoroRunning = true;
+                document.getElementById('startPomodoro').disabled = true;
+                document.getElementById('pausePomodoro').disabled = false;
+                
+                pomodoroInterval = setInterval(() => {
+                    pomodoroTime--;
+                    updatePomodoroDisplay();
+                    
+                    if (pomodoroTime <= 0) {
+                        clearInterval(pomodoroInterval);
+                        pomodoroRunning = false;
+                        
+                        if (isPomodoroBreak) {
+                            // Break finished, start focus time
+                            isPomodoroBreak = false;
+                            pomodoroTime = 1500; // 25 minutes
+                            document.getElementById('pomodoroStatus').textContent = 'Focus Time';
+                            alert('Break finished! Time to focus.');
+                        } else {
+                            // Focus time finished, start break
+                            isPomodoroBreak = true;
+                            pomodoroTime = 300; // 5 minutes
+                            document.getElementById('pomodoroStatus').textContent = 'Break Time';
+                            alert('Focus session finished! Take a break.');
+                        }
+                        
+                        document.getElementById('startPomodoro').disabled = false;
+                        document.getElementById('pausePomodoro').disabled = true;
+                        updatePomodoroDisplay();
+                    }
+                }, 1000);
+            }
+        }
+
+        function pausePomodoro() {
+            if (pomodoroRunning) {
+                pomodoroRunning = false;
+                clearInterval(pomodoroInterval);
+                document.getElementById('startPomodoro').disabled = false;
+                document.getElementById('pausePomodoro').disabled = true;
+            }
+        }
+
+        function resetPomodoro() {
+            pomodoroRunning = false;
+            clearInterval(pomodoroInterval);
+            isPomodoroBreak = false;
+            pomodoroTime = 1500; // 25 minutes
+            document.getElementById('startPomodoro').disabled = false;
+            document.getElementById('pausePomodoro').disabled = true;
+            document.getElementById('pomodoroStatus').textContent = 'Focus Time';
+            updatePomodoroDisplay();
+        }
+
+        function updatePomodoroDisplay() {
+            const minutes = Math.floor(pomodoroTime / 60);
+            const seconds = pomodoroTime % 60;
+            document.getElementById('pomodoroDisplay').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
         function init() {
             clearOldData();
             currentLayout = getSavedLayout();
@@ -1051,6 +1733,16 @@
             layoutBtnText.textContent = layoutNames[currentLayout];
             loadSavedImage();
             showDashboardView(getTimetableData());
+            
+            // Load saved notes
+            const savedNotes = localStorage.getItem('studentNotes');
+            if (savedNotes) {
+                document.getElementById('notesTextarea').value = savedNotes;
+            }
+            
+            // Initialize displays
+            updateTimerDisplay();
+            updatePomodoroDisplay();
         }
 
         init();
@@ -1066,4 +1758,3 @@
 
 </body>
 </html>
-
