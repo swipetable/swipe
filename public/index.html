@@ -886,32 +886,53 @@
         // Tab switching
         textViewTab.addEventListener('click', () => {
             currentView = 'text';
+            
             textViewTab.classList.add('bg-primary', 'text-white');
             textViewTab.classList.remove('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
+            
             imageViewTab.classList.remove('bg-primary', 'text-white');
             imageViewTab.classList.add('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
+            
+            toolsViewTab.classList.remove('bg-primary', 'text-white');
+            toolsViewTab.classList.add('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
+            
             textViewContainer.classList.remove('hidden');
             imageViewContainer.classList.add('hidden');
+            toolsViewContainer.classList.add('hidden');
         });
 
         imageViewTab.addEventListener('click', () => {
             currentView = 'image';
-            imageViewTab.classList.add('bg-primary', 'text-white');
-            imageViewTab.classList.remove('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
-            textViewTab.classList.remove('bg-primary', 'text-white');
-            textViewTab.classList.add('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
+            
+            imageViewTab.classList.remove('bg-primary', 'text-white');
+            imageViewTab.classList.add('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
+            
+            textViewTab.classList.add('bg-primary', 'text-white');
+            textViewTab.classList.remove('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
+            
+            toolsViewTab.classList.remove('bg-primary', 'text-white');
+            toolsViewTab.classList.add('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
+            
             textViewContainer.classList.add('hidden');
             imageViewContainer.classList.remove('hidden');
+            toolsViewContainer.classList.add('hidden');
         });
         
         toolsViewTab.addEventListener('click', () => {
             currentView = 'tools';
-            imageViewTab.classList.remove('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
+            
+            textViewTab.classList.add('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
             textViewTab.classList.remove('bg-primary', 'text-white');
-            textViewContainer.classList.remove('hidden');
-            imageViewContainer.classList.remove('hidden');
+            
+            imageViewTab.classList.add('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
+            imageViewTab.classList.remove('bg-primary', 'text-white');
+            
+            toolsViewTab.classList.remove('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
+            toolsViewTab.classList.add('bg-primary', 'text-white');
+            
             textViewContainer.classList.add('hidden');
             imageViewContainer.classList.add('hidden');
+            toolsViewContainer.classList.remove('hidden');
         });
 
         // Image upload handling
